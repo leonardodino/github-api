@@ -1,6 +1,12 @@
 'use strict';
 
 var gulp = require('gulp');
+var babelify = require('babelify');
+var browserify = require('browserify');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
+var sourcemaps = require('gulp-sourcemaps');
+var clean = require('gulp-clean');
 var jshint = require('gulp-jshint');
 var jscs = require('gulp-jscs');
 var rename = require('gulp-rename');
@@ -15,7 +21,7 @@ function runTests(singleRun, isCI, done) {
 
    var files = [
       path.join(__dirname, 'test/vendor/*.js'), // PhantomJS 1.x polyfills
-      path.join(__dirname, 'github.js'),
+      path.join(__dirname, 'dist/github.js'),
       path.join(__dirname, 'test/test.*.js')
    ];
 
@@ -74,7 +80,7 @@ function runTests(singleRun, isCI, done) {
 
 gulp.task('lint', function() {
    return gulp.src([
-      path.join(__dirname, '/*.js'),
+      path.join(__dirname, '/src/*.js'),
       path.join(__dirname, '/test/*.js')
    ],
    {
@@ -102,15 +108,49 @@ gulp.task('test:auto', function(done) {
    runTests(false, false, done);
 });
 
-gulp.task('build', function() {
-   return gulp.src('github.js')
-      .pipe(uglify())
-      .pipe(rename('github.min.js'))
-      .pipe(gulp.dest('dist/'));
+gulp.task('clean', function() {
+   return gulp.src(
+         'dist/*',
+         {
+            read: false
+         }
+      )
+      .pipe(clean());
 });
 
-gulp.task('default', function() {
-   gulp.start('lint', 'test', 'build');
+gulp.task('compile', function() {
+   return browserify({
+         entries: 'src/github.js',
+         debug: true,
+         transform: [babelify]
+      })
+      .bundle()
+      .pipe(source('github.js'))
+      .pipe(buffer())
+      .pipe(sourcemaps.init({
+         loadMaps: true
+      }))
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest('dist'));
+});
+
+gulp.task('minify', function() {
+   return gulp.src('dist/github.js')
+      .pipe(sourcemaps.init({
+         loadMaps: true
+      }))
+      .pipe(uglify())
+      .pipe(rename({extname: '.min.js'}))
+      .pipe(sourcemaps.write('./'))
+      .pipe(gulp.dest('dist'));
+});
+
+gulp.task('build', ['compile'], function() {
+   gulp.start('lint', 'minify');
+});
+
+gulp.task('default', ['clean', 'build'], function() {
+   gulp.start('test');
 });
 
 var sauceLaunchers = {
