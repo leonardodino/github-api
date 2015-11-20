@@ -5,7 +5,7 @@ var testUser, user, github;
 if (typeof window === 'undefined') {
    // Module dependencies
    var chai = require('chai');
-   var Github = require('../');
+   var Github = require('../dist/github.js');
 
    testUser = require('./user.json');
 

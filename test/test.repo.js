@@ -5,7 +5,7 @@ var github, repo, user, testUser, imageB64, imageBlob;
 if (typeof window === 'undefined') { // We're in NodeJS
    // Module dependencies
    var chai = require('chai');
-   var Github = require('../');
+   var Github = require('../dist/github.js');
 
    testUser = require('./user.json');
 

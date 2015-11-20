@@ -5,7 +5,7 @@ var github;
 if (typeof window === 'undefined') {
    // Module dependencies
    var chai = require('chai');
-   var Github = require('../');
+   var Github = require('../dist/github.js');
    var testUser = require('./user.json');
 
    // Use should flavour for Mocha
