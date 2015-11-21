@@ -858,9 +858,9 @@
          this.userIsCollaborator = function(username, cb) {
             var url = repoPath+'/collaborators/'+username;
             _request('GET', url, null, function(err, obj, xhr) {
-               if (err) return cb(err)
-               if (xhr.status === 204) return cb(null, true)
-               cb(null, false)
+               if (err) return cb(null, false)
+               if (xhr && xhr.status === 204) return cb(null, true, obj, xhr)
+               cb(null, false, obj, xhr)
             });
          }
       };
