@@ -848,6 +848,21 @@
 
             _request('GET', url, null, cb);
          };
+
+         // Check if a user is an Collaborator
+         // --------
+         // this function checks if the user 
+         // is capable of writing to the repository.
+         // returns boolean.
+
+         this.userIsCollaborator = function(username, cb) {
+            var url = repoPath+'/collaborators/'+username;
+            _request('GET', url, null, function(err, obj, xhr) {
+               if (err) return cb(err)
+               if (xhr.status === 204) return cb(null, true)
+               cb(null, false)
+            });
+         }
       };
 
       // Gists API
